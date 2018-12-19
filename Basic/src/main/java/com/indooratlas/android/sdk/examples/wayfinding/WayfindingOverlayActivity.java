@@ -63,8 +63,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private static final int MAX_DIMENSION = 2048;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-    Range<Integer> rStraight1=Range.closedOpen(335,360);
-    Range<Integer> rStraight2=Range.closedOpen(0,45);
+    //Range<Integer> rStraight1=Range.closedOpen(335,360);
+    //Range<Integer> rStraight2=Range.closedOpen(0,45);
     Range<Integer> rRight=Range.closedOpen(45,135);
     Range<Integer> rRightN=Range.closedOpen(-335,-225);
     Range<Integer> rBack=Range.closedOpen(135,225);
@@ -80,10 +80,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private Marker mDestinationMarker;
     private Marker mHeadingMarker;
     private List<Polyline> mPolylines = new ArrayList<>();
-    private List<Double> DistList = new ArrayList<>(); //for distances
+
     private List<Integer> msgList=new ArrayList<>();
     private StringBuffer sb=new StringBuffer();
-    private int count,noLegs=0,flag=0;
+    private int count;
     private String dir;
     private IARoute mCurrentRoute;
     private LatLng currentPos;
@@ -417,7 +417,6 @@ public class WayfindingOverlayActivity extends FragmentActivity
     @Override
     public void onMapClick(LatLng point) {
         if (mMap != null) {
-            flag=0;
             count=0;
             msgList.clear();
             for(int i=0;i<10;i++)
