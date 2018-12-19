@@ -5,6 +5,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -49,6 +50,7 @@ import com.squareup.picasso.Target;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -80,11 +82,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private Marker mDestinationMarker;
     private Marker mHeadingMarker;
     private List<Polyline> mPolylines = new ArrayList<>();
-
+    private TextToSpeech t1;
     private List<Integer> msgList=new ArrayList<>();
-    private StringBuffer sb=new StringBuffer();
     private int count;
-    private String dir;
+    private String dir,msg;
     private IARoute mCurrentRoute;
     private LatLng currentPos;
     private IAWayfindingRequest mWayfindingDestination;
@@ -128,9 +129,11 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
             if (atLeg(route.getLegs().get(count))) {
                 if(msgList.get(count)==0) {
-                    dist=Math.round(route.getLegs().get(count).getLength()*100)/100; //round off dist
+                    dist=Math.round(route.getLegs().get(count).getLength()*100.0)/100.0; //round off dist
+                    msg="You are at leg " + count + ". Travel" + dist + " metre " + dir;
                     showInfo("at leg " + count + ". travel" + dist + " " + dir+" delta="+delta);
                     //mCurrentRoute = null;
+                    t1.speak(msg, TextToSpeech.QUEUE_FLUSH, null);
                     if (count < route.getLegs().size() - 2)
                         count++;
                     msgList.set(count,1);
@@ -280,6 +283,14 @@ public class WayfindingOverlayActivity extends FragmentActivity
         ((SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map))
                 .getMapAsync(this);
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
+            }
+        });
     }
 
     @Override
@@ -317,6 +328,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         if (mWayfindingDestination != null) {
             mIALocationManager.removeWayfindingUpdates();
+        }
+        if(t1 !=null){
+            t1.stop();
+            t1.shutdown();
         }
     }
 
