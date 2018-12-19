@@ -10,6 +10,8 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Toast;
+import com.google.common.collect.Range;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -61,7 +63,14 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private static final int MAX_DIMENSION = 2048;
 
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
-
+    Range<Integer> rStraight1=Range.closedOpen(335,360);
+    Range<Integer> rStraight2=Range.closedOpen(0,45);
+    Range<Integer> rRight=Range.closedOpen(45,135);
+    Range<Integer> rRightN=Range.closedOpen(-335,-225);
+    Range<Integer> rBack=Range.closedOpen(135,225);
+    Range<Integer> rBackN=Range.closedOpen(-225,-135);
+    Range<Integer> rLeft=Range.closedOpen(225,335);
+    Range<Integer> rLeftN=Range.closedOpen(-135,-45);
     private Circle mCircle;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
@@ -71,13 +80,62 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private Marker mDestinationMarker;
     private Marker mHeadingMarker;
     private List<Polyline> mPolylines = new ArrayList<>();
+    private List<Double> DistList = new ArrayList<>(); //for distances
+    private List<Integer> msgList=new ArrayList<>();
+    private StringBuffer sb=new StringBuffer();
+    private int count,noLegs=0,flag=0;
+    private String dir;
     private IARoute mCurrentRoute;
-
+    private LatLng currentPos;
     private IAWayfindingRequest mWayfindingDestination;
     private IAWayfindingListener mWayfindingListener = new IAWayfindingListener() {
+        /*
+            for (IARoute.Leg leg : mCurrentRoute.getLegs()) {
+
+            if (leg.getEdgeIndex() == null) {
+                continue;
+            }
+            DistList.add(leg.getLength());
+            noLegs++;
+            sb.append(Math.round(leg.getLength()*100)/100+",");
+
+        }
+
+            Toast.makeText(getApplicationContext(),"no of legs="+noLegs+" lengths="+sb,
+        Toast.LENGTH_SHORT).show();
+        */
+
         @Override
         public void onWayfindingUpdate(IARoute route) {
-            mCurrentRoute = route;
+            mCurrentRoute = route; //add legs here
+            //find nearest leg
+            /*
+            for(IARoute.Leg leg:route.getLegs())
+            {
+                if (atLeg(leg))
+                    count=leg.getEdgeIndex();
+            }
+            */
+            int delta=(int)(route.getLegs().get(count).getDirection()-mHeadingMarker.getRotation());
+            double dist;
+            dir="straight";
+            if(rRight.contains(delta)||rRightN.contains(delta))
+                dir="right";
+            else if(rBack.contains(delta)||rBackN.contains(delta))
+                dir="back";
+            else if(rLeft.contains(delta)||rLeftN.contains(delta))
+                dir="left";
+
+            if (atLeg(route.getLegs().get(count))) {
+                if(msgList.get(count)==0) {
+                    dist=Math.round(route.getLegs().get(count).getLength()*100)/100; //round off dist
+                    showInfo("at leg " + count + ". travel" + dist + " " + dir+" delta="+delta);
+                    //mCurrentRoute = null;
+                    if (count < route.getLegs().size() - 2)
+                        count++;
+                    msgList.set(count,1);
+                }
+            }
             if (hasArrivedToDestination(route)) {
                 // stop wayfinding
                 showInfo("You're there!");
@@ -87,6 +145,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
             }
             updateRouteVisualization();
         }
+
     };
 
     private IAOrientationListener mOrientationListener = new IAOrientationListener() {
@@ -155,7 +214,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
             }
 
             final LatLng center = new LatLng(location.getLatitude(), location.getLongitude());
-
+            currentPos=center;
             final int newFloor = location.getFloorLevel();
             if (mFloor != newFloor) {
                 updateRouteVisualization();
@@ -358,7 +417,11 @@ public class WayfindingOverlayActivity extends FragmentActivity
     @Override
     public void onMapClick(LatLng point) {
         if (mMap != null) {
-
+            flag=0;
+            count=0;
+            msgList.clear();
+            for(int i=0;i<10;i++)
+                msgList.add(i,0);
             mWayfindingDestination = new IAWayfindingRequest.Builder()
                     .withFloor(mFloor)
                     .withLatitude(point.latitude)
@@ -387,10 +450,32 @@ public class WayfindingOverlayActivity extends FragmentActivity
             return false;
         }
 
-        final double FINISH_THRESHOLD_METERS = 8.0;
+        final double FINISH_THRESHOLD_METERS = 3.0; //8
         double routeLength = 0;
         for (IARoute.Leg leg : route.getLegs()) routeLength += leg.getLength();
         return routeLength < FINISH_THRESHOLD_METERS;
+    }
+    //to display initial
+    private boolean hasStarted(IARoute route)
+    {
+        if (route.getLegs().size() == 0) {
+            return false;
+        }
+        final double FINISH_THRESHOLD_METERS = 8.0;
+        return route.getLegs().get(1).getLength()< FINISH_THRESHOLD_METERS;
+
+    }
+    //arrived at point
+    private boolean atLeg(IARoute.Leg leg)
+    {
+        /*
+        IARoute.Point currentPt=leg.getEnd();
+        LatLng pt=new LatLng(currentPt.getLatitude(),currentPt.getLongitude());
+        return (mHeadingMarker.getPosition().equals(pt));
+        */
+        double threshold=8;
+        return leg.getLength()<threshold;
+
     }
 
     /**
@@ -413,7 +498,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
         if (mCurrentRoute == null) {
             return;
         }
-
+        //count =0;
+        //noLegs=mCurrentRoute.getLegs().size();
         for (IARoute.Leg leg : mCurrentRoute.getLegs()) {
 
             if (leg.getEdgeIndex() == null) {
@@ -437,8 +523,22 @@ public class WayfindingOverlayActivity extends FragmentActivity
             } else {
                 opt.color(0x300000FF);
             }
-
+            /*
+            while(count<=4) {
+                DistList.add(leg.getLength());
+                count++;
+            }
+            */
             mPolylines.add(mMap.addPolyline(opt));
+
         }
+        /*
+        for(double dist: DistList) {
+            sb.append(Math.round(dist*100)/100+","); //rounding off
+
+        }
+        Toast.makeText(getApplicationContext(),sb,
+                Toast.LENGTH_SHORT).show();
+        */
     }
 }
