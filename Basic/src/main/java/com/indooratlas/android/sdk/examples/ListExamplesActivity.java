@@ -18,9 +18,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -36,23 +39,19 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
 
-    private ExamplesAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mAdapter = new ExamplesAdapter(this);
-        ListView listView = (ListView) findViewById(android.R.id.list);
-        listView.setAdapter(mAdapter);
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ComponentName example = mAdapter.mExamples.get(position).mComponentName;
-                startActivity(new Intent(Intent.ACTION_VIEW).setComponent(example));
+        Button next = (Button) findViewById(R.id.Button01);
+        next.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent myIntent = new Intent(view.getContext(), WayfindingOverlayActivity.class);
+                startActivityForResult(myIntent, 0);
             }
+
         });
 
         if (!isSdkConfigured()) {
@@ -140,109 +139,6 @@ public class ListExamplesActivity extends AppCompatActivity {
     /**
      * Adapter for example activities.
      */
-    class ExamplesAdapter extends BaseAdapter {
-
-        final ArrayList<ExampleEntry> mExamples;
-
-        ExamplesAdapter(Context context) {
-            mExamples = listActivities(context);
-            Collections.sort(mExamples);
-        }
-
-
-        @Override
-        public int getCount() {
-            return mExamples.size();
-        }
-
-        @Override
-        public Object getItem(int position) {
-            return position;
-        }
-
-        @Override
-        public long getItemId(int position) {
-            return position;
-        }
-
-        @Override
-        public View getView(int position, View convertView, ViewGroup parent) {
-            ExampleEntry entry = mExamples.get(position);
-            if (convertView == null) {
-                convertView = getLayoutInflater().inflate(android.R.layout.simple_list_item_2,
-                        parent, false);
-            }
-            TextView labelText = (TextView) convertView.findViewById(android.R.id.text1);
-            TextView descriptionText = (TextView) convertView.findViewById(android.R.id.text2);
-            labelText.setText(entry.mLabel);
-            descriptionText.setText(entry.mDescription);
-            return convertView;
-        }
-    }
-
-
-    /**
-     * Returns a list of activities that are part of this application, skipping
-     * those from included libraries and *this* activity.
-     */
-    public ArrayList<ExampleEntry> listActivities(Context context) {
-
-        ArrayList<ExampleEntry> result = new ArrayList<>();
-        try {
-            final String packageName = context.getPackageName();
-            PackageManager pm = context.getPackageManager();
-            PackageInfo info = pm.getPackageInfo(packageName, PackageManager.GET_ACTIVITIES);
-
-            ActivityInfo[] activities = info.activities;
-            for (int i = 0; i < activities.length; i++) {
-                parseExample(activities[i], result);
-            }
-            return result;
-
-        } catch (Exception e) {
-            throw new IllegalStateException("failed to get list of activities", e);
-        }
-
-    }
-
-    @SuppressWarnings("unchecked")
-    private void parseExample(ActivityInfo info, ArrayList<ExampleEntry> list) {
-        try {
-            Class cls = Class.forName(info.name);
-            if (cls.isAnnotationPresent(SdkExample.class)) {
-                SdkExample annotation = (SdkExample) cls.getAnnotation(SdkExample.class);
-                list.add(new ExampleEntry(new ComponentName(info.packageName, info.name),
-                        annotation.title() != -1
-                                ? getString(annotation.title())
-                                : info.loadLabel(getPackageManager()).toString(),
-                        getString(annotation.description())));
-            }
-        } catch (ClassNotFoundException e) {
-            Log.e(TAG, "failed to read example info for class: " + info.name, e);
-        }
-
-    }
-
-
-    static class ExampleEntry implements Comparable<ExampleEntry> {
-
-        final ComponentName mComponentName;
-
-        final String mLabel;
-
-        final String mDescription;
-
-        ExampleEntry(ComponentName name, String label, String description) {
-            mComponentName = name;
-            mLabel = label;
-            mDescription = description;
-        }
-
-        @Override
-        public int compareTo(ExampleEntry another) {
-            return mLabel.compareTo(another.mLabel);
-        }
-    }
 
 
     private boolean isSdkConfigured() {
