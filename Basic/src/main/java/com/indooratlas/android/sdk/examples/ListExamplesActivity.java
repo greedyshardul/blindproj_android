@@ -45,8 +45,16 @@ public class ListExamplesActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        Button next = (Button) findViewById(R.id.Button01);
-        next.setOnClickListener(new View.OnClickListener() {
+        Button b1 = (Button) findViewById(R.id.buttonOutdoor);
+        Button b2 = (Button) findViewById(R.id.buttonIndoor);
+        b1.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent myIntent = new Intent(view.getContext(), OutdoorActivity.class);
+                startActivityForResult(myIntent, 0);
+            }
+
+        });
+        b2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), WayfindingOverlayActivity.class);
                 startActivityForResult(myIntent, 0);

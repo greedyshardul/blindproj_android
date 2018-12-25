@@ -8,14 +8,19 @@
     <TextView
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:textColor="#000000"
-        android:text="This is Activity 1" />
+        android:text="Home"
+        android:textColor="#000000" />
 
-    <Button android:text="Next"
-        android:id="@+id/Button01"
-        android:layout_width="250px"
-        android:textSize="18px"
-        android:layout_height="55px">
-    </Button>
+    <Button
+        android:id="@+id/buttonOutdoor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Outdoor Navigation" />
+
+    <Button
+        android:id="@+id/buttonIndoor"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Indoor Navigation" />
 
 </LinearLayout>

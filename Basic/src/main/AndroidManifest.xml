@@ -109,6 +109,11 @@
             android:name=".lockfloor.LockFloorActivity"
             android:label="@string/example_lockfloor_title"
             android:screenOrientation="portrait" />
+        <activity android:name=".OutdoorActivity" />
+        <activity android:name=".AccountActivity.LoginActivity" />
+        <activity android:name=".AccountActivity.OutdoorMainActivity" />
+        <activity android:name=".AccountActivity.SignupActivity" />
+        <activity android:name=".AccountActivity.ResetPasswordActivity"/>
 
         <service
             android:name=".foregroundservice.ForegroundService"
