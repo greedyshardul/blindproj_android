@@ -42,42 +42,13 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity
-            android:name=".simple.SimpleActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/example_simple_title" />
+
 
         <activity
             android:name=".googlemaps.MapsActivity"
             android:label="@string/example_googlemaps_basic_title"
             android:screenOrientation="portrait" />
-        <activity
-            android:name=".mapsoverlay.MapsOverlayActivity"
-            android:label="@string/example_googlemaps_overlay_title"
-            android:screenOrientation="portrait" />
-        <activity
-            android:name=".sharelocation.ShareLocationActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/example_sharelocation_title" />
 
-        <activity
-            android:name=".regions.RegionsActivity"
-            android:configChanges="orientation|screenSize"
-            android:label="@string/example_regions_title" />
-
-        <activity
-            android:name=".orientation.OrientationActivity"
-            android:label="@string/example_orientation_title"
-            android:screenOrientation="portrait"/>
-
-        <activity
-            android:name=".osmdroid.OpenStreetMapOverlay"
-            android:label="@string/example_osm_overlay_title"
-            android:screenOrientation="portrait" />
-
-        <activity
-            android:name=".locationsettings.LocationSettingsActivity"
-            android:label="@string/example_location_settings_title" />
 
         <activity
             android:name=".wayfinding.WayfindingOverlayActivity"
@@ -90,10 +61,6 @@
 
 
 
-        <activity
-            android:name=".lockfloor.LockFloorActivity"
-            android:label="@string/example_lockfloor_title"
-            android:screenOrientation="portrait" />
         <activity android:name=".OutdoorActivity" />
         <activity android:name=".AccountActivity.LoginActivity" />
         <activity android:name=".AccountActivity.OutdoorMainActivity" />
