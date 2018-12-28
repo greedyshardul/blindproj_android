@@ -23,6 +23,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.indooratlas.android.sdk.examples.firebaseLocation.sendService;
 import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity;
 
 import java.util.ArrayList;
@@ -47,6 +48,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
         Button b1 = (Button) findViewById(R.id.buttonOutdoor);
         Button b2 = (Button) findViewById(R.id.buttonIndoor);
+        Button b3 = (Button) findViewById(R.id.buttonShare);
         b1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), OutdoorActivity.class);
@@ -58,6 +60,12 @@ public class ListExamplesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), WayfindingOverlayActivity.class);
                 startActivityForResult(myIntent, 0);
+            }
+
+        });
+        b3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                startService(view);
             }
 
         });
@@ -152,6 +160,14 @@ public class ListExamplesActivity extends AppCompatActivity {
     private boolean isSdkConfigured() {
         return !"api-key-not-set".equals(getString(R.string.indooratlas_api_key))
                 && !"api-secret-not-set".equals(getString(R.string.indooratlas_api_secret));
+    }
+    public void startService(View view) {
+        startService(new Intent(getBaseContext(), sendService.class));
+    }
+
+    // Method to stop the service
+    public void stopService(View view) {
+        stopService(new Intent(getBaseContext(), sendService.class));
     }
 
 

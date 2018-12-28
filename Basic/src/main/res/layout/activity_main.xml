@@ -23,4 +23,10 @@
         android:layout_height="wrap_content"
         android:text="Indoor Navigation" />
 
+    <Button
+        android:id="@+id/buttonShare"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="share location" />
+
 </LinearLayout>
