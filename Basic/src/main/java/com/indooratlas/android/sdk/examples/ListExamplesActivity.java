@@ -2,13 +2,16 @@ package com.indooratlas.android.sdk.examples;
 
 import android.Manifest;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -39,16 +42,18 @@ public class ListExamplesActivity extends AppCompatActivity {
     private static final String TAG = "IAExample";
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
-
+    Button b1,b2,b3;
+    TextView textView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        b1 = (Button) findViewById(R.id.buttonOutdoor);
+        b2 = (Button) findViewById(R.id.buttonIndoor);
+        b3 = (Button) findViewById(R.id.buttonShare);
+        textView=findViewById(R.id.textView);
 
-        Button b1 = (Button) findViewById(R.id.buttonOutdoor);
-        Button b2 = (Button) findViewById(R.id.buttonIndoor);
-        Button b3 = (Button) findViewById(R.id.buttonShare);
         b1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), OutdoorActivity.class);
@@ -63,12 +68,7 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
 
         });
-        b3.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View view) {
-                startService(view);
-            }
 
-        });
 
         if (!isSdkConfigured()) {
             new AlertDialog.Builder(this)
@@ -84,6 +84,10 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
 
         ensurePermissions();
+        if(!runtime_permissions()) {
+            enableShare();
+            textView.append("granted");
+        }
 
     }
 
@@ -136,6 +140,27 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
     }
 
+    private void enableShare() {
+        b3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent i =new Intent(getApplicationContext(),sendService.class);
+                startService(i);
+            }
+
+        });
+
+    }
+    private boolean runtime_permissions() {
+        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
+
+            return true;
+        }
+        return false;
+    }
+
+
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 
@@ -147,11 +172,21 @@ public class ListExamplesActivity extends AppCompatActivity {
                     Toast.makeText(this, R.string.location_permission_denied_message,
                             Toast.LENGTH_LONG).show();
                 }
+
                 break;
         }
 
     }
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopService(new Intent(this, sendService.class));
+        /*
+        if(broadcastReceiver != null){
+            unregisterReceiver(broadcastReceiver);
+        }
+        */
+    }
     /**
      * Adapter for example activities.
      */
@@ -161,14 +196,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         return !"api-key-not-set".equals(getString(R.string.indooratlas_api_key))
                 && !"api-secret-not-set".equals(getString(R.string.indooratlas_api_secret));
     }
-    public void startService(View view) {
-        startService(new Intent(getBaseContext(), sendService.class));
-    }
 
-    // Method to stop the service
-    public void stopService(View view) {
-        stopService(new Intent(getBaseContext(), sendService.class));
-    }
 
 
 }
