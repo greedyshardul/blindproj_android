@@ -48,6 +48,9 @@
             android:name=".googlemaps.MapsActivity"
             android:label="@string/example_googlemaps_basic_title"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".googlemaps.TrackingActivity"
+            android:screenOrientation="portrait" />
 
 
         <activity

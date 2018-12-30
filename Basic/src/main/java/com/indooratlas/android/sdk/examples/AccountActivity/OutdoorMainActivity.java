@@ -17,12 +17,14 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.indooratlas.android.sdk.examples.OutdoorActivity;
 import com.indooratlas.android.sdk.examples.R;
+import com.indooratlas.android.sdk.examples.googlemaps.TrackingActivity;
 
 public class OutdoorMainActivity extends AppCompatActivity {
 
     private Button btnChangePassword, btnRemoveUser,
-            changePassword, remove, signOut;
+            changePassword, remove, signOut, mapButton;
     private TextView email;
 
     private EditText oldEmail, password, newPassword;
@@ -55,7 +57,18 @@ public class OutdoorMainActivity extends AppCompatActivity {
             }
         };
 
-
+        mapButton=findViewById(R.id.mapButton);
+        mapButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(OutdoorMainActivity.this,
+                        "clicked ",
+                        Toast.LENGTH_SHORT).show();
+                Intent i =new Intent(getApplicationContext(),TrackingActivity.class);
+                i.putExtra("guardian",user.getEmail());
+                startActivity(i);
+            }
+        });
         btnChangePassword = (Button) findViewById(R.id.change_password_button);
 
         btnRemoveUser = (Button) findViewById(R.id.remove_user_button);
@@ -162,6 +175,7 @@ public class OutdoorMainActivity extends AppCompatActivity {
                 signOut();
             }
         });
+
 
     }
 

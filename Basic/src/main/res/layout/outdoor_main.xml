@@ -135,4 +135,12 @@
         android:textSize="30sp"
         android:textStyle="bold|italic" />
 
+    <Button
+        android:id="@+id/mapButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/changePass"
+        android:layout_alignParentEnd="true"
+        android:text="Track my chotu" />
+
 </RelativeLayout>
