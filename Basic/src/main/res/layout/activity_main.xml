@@ -29,10 +29,12 @@
         android:layout_height="wrap_content"
         android:text="share location" />
 
-    <TextView
-        android:id="@+id/textView"
+    <EditText
+        android:id="@+id/guardianName"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="TextView" />
+        android:ems="10"
+        android:hint="guardian name"
+        android:inputType="textPersonName" />
 
 </LinearLayout>

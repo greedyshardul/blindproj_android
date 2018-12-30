@@ -16,18 +16,22 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.indooratlas.android.sdk.examples.firebaseLocation.sendService;
 import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,7 +47,8 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     Button b1,b2,b3;
-    TextView textView;
+    EditText guardian;
+    String guardianName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,7 +57,29 @@ public class ListExamplesActivity extends AppCompatActivity {
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
         b3 = (Button) findViewById(R.id.buttonShare);
-        textView=findViewById(R.id.textView);
+        guardian=findViewById(R.id.guardianName);
+
+        guardian.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                guardianName=s.toString();
+                if(!runtime_permissions()&&!guardianName.matches("")) {
+                    enableShare(); //add disable share when text is blank later
+
+                }
+
+            }
+        });
 
         b1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -84,11 +111,19 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
 
         ensurePermissions();
-        if(!runtime_permissions()) {
-            enableShare();
-            textView.append("granted");
-        }
+        /*
+        Toast.makeText(ListExamplesActivity.this,
+                "share enabled, guardian "+guardianName,
+                Toast.LENGTH_SHORT).show();
 
+        if(!runtime_permissions()&&!guardianName.matches("")) {
+            Toast.makeText(ListExamplesActivity.this,
+                    "share enabled, guardian ",
+                    Toast.LENGTH_LONG).show();
+            enableShare();
+
+        }
+        */
     }
 
     /**
@@ -144,6 +179,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         b3.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
                 Intent i =new Intent(getApplicationContext(),sendService.class);
+                i.putExtra("guardian",guardianName);
                 startService(i);
             }
 
