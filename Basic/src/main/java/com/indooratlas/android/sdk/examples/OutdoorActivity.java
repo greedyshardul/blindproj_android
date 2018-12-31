@@ -3,6 +3,7 @@ package com.indooratlas.android.sdk.examples;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -28,8 +29,13 @@ public class OutdoorActivity extends AppCompatActivity {
         });
         b2.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
+                Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
+                        Uri.parse("https://www.google.com/maps"));
+                startActivity(intent);
+                /*
                 Intent myIntent = new Intent(view.getContext(), MapsActivity.class);
                 startActivityForResult(myIntent, 0);
+                */
             }
 
         });

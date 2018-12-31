@@ -13,10 +13,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
@@ -46,19 +48,21 @@ public class ListExamplesActivity extends AppCompatActivity {
     private static final String TAG = "IAExample";
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
-    Button b1,b2,b3;
-    EditText guardian;
+    Button b1,b2;
+    FloatingActionButton fb;
+    EditText input;
     String guardianName;
-
+    AlertDialog.Builder builder;
+    Context mContext;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
-        b3 = (Button) findViewById(R.id.buttonShare);
-        guardian=findViewById(R.id.guardianName);
-
+        fb=findViewById(R.id.floatButton);
+        mContext=this;
+        /*
         guardian.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -80,6 +84,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
             }
         });
+        */
 
         b1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -95,7 +100,47 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
 
         });
+        fb.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                //create alertbox here
+                builder = new AlertDialog.Builder(mContext);
+                builder.setTitle("Enter guardian name");
+                input = new EditText(mContext);
+                input.setInputType(InputType.TYPE_CLASS_TEXT);
+                builder.setView(input);
+                builder.setMessage("enter email");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        guardianName = input.getText().toString();
+                        if(guardianName.matches("^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$")){
+                            Toast.makeText(ListExamplesActivity.this,
+                                    "accepting"+guardianName,
+                                    Toast.LENGTH_SHORT).show();
 
+                            Intent i =new Intent(getApplicationContext(),sendService.class);
+                            i.putExtra("guardian",guardianName);
+                            startService(i);
+
+                            //later check for valid email
+                        }
+                        else
+                            Toast.makeText(ListExamplesActivity.this,
+                                "enter valid email"+guardianName,
+                                Toast.LENGTH_SHORT).show();
+
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                });
+                builder.show();
+            }
+
+        });
 
         if (!isSdkConfigured()) {
             new AlertDialog.Builder(this)
@@ -174,6 +219,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
         }
     }
+    /*
 
     private void enableShare() {
         b3.setOnClickListener(new View.OnClickListener() {
@@ -186,6 +232,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         });
 
     }
+    */
     private boolean runtime_permissions() {
         if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
 
