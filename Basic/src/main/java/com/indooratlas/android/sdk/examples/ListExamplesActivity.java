@@ -49,7 +49,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     Button b1,b2;
-    FloatingActionButton fb;
+    FloatingActionButton fb,cb;
     EditText input;
     String guardianName;
     AlertDialog.Builder builder;
@@ -61,6 +61,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
         fb=findViewById(R.id.floatButton);
+        cb=findViewById(R.id.buttonCall);
         mContext=this;
         /*
         guardian.addTextChangedListener(new TextWatcher() {
@@ -97,6 +98,13 @@ public class ListExamplesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), WayfindingOverlayActivity.class);
                 startActivityForResult(myIntent, 0);
+            }
+
+        });
+        cb.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Intent i=new Intent(Intent.ACTION_DIAL);
+                startActivity(i);
             }
 
         });

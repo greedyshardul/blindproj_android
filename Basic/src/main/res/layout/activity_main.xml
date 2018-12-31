@@ -31,4 +31,11 @@
         android:clickable="true"
         app:srcCompat="@drawable/osm_ic_follow_me" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/buttonCall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:clickable="true"
+        app:srcCompat="@android:drawable/sym_action_call" />
+
 </LinearLayout>
