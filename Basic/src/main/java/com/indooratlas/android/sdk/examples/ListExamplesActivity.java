@@ -31,6 +31,7 @@ import android.widget.ListView;
 import android.widget.Toast;
 
 import com.indooratlas.android.sdk.examples.firebaseLocation.sendService;
+import com.indooratlas.android.sdk.examples.wayfinding.ImageViewActivity;
 import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity;
 
 import org.w3c.dom.Text;
@@ -48,7 +49,7 @@ public class ListExamplesActivity extends AppCompatActivity {
     private static final String TAG = "IAExample";
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
-    Button b1,b2;
+    Button b1,b2,b3;
     FloatingActionButton fb,cb;
     EditText input;
     String guardianName;
@@ -60,6 +61,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
+        b3=findViewById(R.id.buttonImg);
         fb=findViewById(R.id.floatButton);
         cb=findViewById(R.id.buttonCall);
         mContext=this;
@@ -98,6 +100,18 @@ public class ListExamplesActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent myIntent = new Intent(view.getContext(), WayfindingOverlayActivity.class);
                 startActivityForResult(myIntent, 0);
+            }
+
+        });
+        b3.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View view) {
+                Toast.makeText(ListExamplesActivity.this,
+                        "clicked",
+                        Toast.LENGTH_SHORT).show();
+
+                Intent myIntent = new Intent(view.getContext(), ImageViewActivity.class);
+                startActivityForResult(myIntent, 0);
+
             }
 
         });

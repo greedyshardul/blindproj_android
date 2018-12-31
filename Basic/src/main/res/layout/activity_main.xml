@@ -24,6 +24,12 @@
         android:layout_height="wrap_content"
         android:text="Indoor Navigation" />
 
+    <Button
+        android:id="@+id/buttonImg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Indoor navigation image" />
+
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatButton"
         android:layout_width="match_parent"

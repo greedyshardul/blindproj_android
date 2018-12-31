@@ -1,6 +1,7 @@
 package com.indooratlas.android.sdk.examples.wayfinding;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -11,6 +12,9 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
+
 import com.google.common.collect.Range;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -72,6 +76,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     Range<Integer> rBackN=Range.closedOpen(-225,-135);
     Range<Integer> rLeft=Range.closedOpen(225,335);
     Range<Integer> rLeftN=Range.closedOpen(-135,-45);
+    private Button bSearch,bCancel;
     private Circle mCircle;
     private IARegion mOverlayFloorPlan = null;
     private GroundOverlay mGroundOverlay = null;
@@ -142,7 +147,13 @@ public class WayfindingOverlayActivity extends FragmentActivity
     };
 
     private int mFloor;
-
+    private void addMarkers()
+    {
+        LatLng point=new LatLng(19.119509,72.893560);
+        mDestinationMarker = mMap.addMarker(new MarkerOptions()
+                .position(point)
+                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("kitchen"));
+    }
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
             // location can received before map is initialized, ignoring those updates
@@ -206,7 +217,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
             // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 17.5f));
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 25.5f)); //17.5f
+
                 mCameraPositionNeedsUpdating = false;
             }
         }
@@ -240,7 +252,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_maps);
+        setContentView(R.layout.activity_wayfinding_layout);
 
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
@@ -250,7 +262,55 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         // disable indoor-outdoor detection (assume we're indoors)
         mIALocationManager.lockIndoors(true);
+        bSearch=findViewById(R.id.buttonSearch);
+        bCancel=findViewById(R.id.buttonCancel);
+        bSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(WayfindingOverlayActivity.this,
+                        "search",
+                        Toast.LENGTH_SHORT).show();
+                // search for point here, works!
+                if (mMap != null) {
+                    count=0;
+                    msgList.clear();
+                    for(int i=0;i<10;i++)
+                        msgList.add(i,0);
+                    LatLng point=mDestinationMarker.getPosition();
+                    mWayfindingDestination = new IAWayfindingRequest.Builder()
+                            .withFloor(mFloor)
+                            .withLatitude(point.latitude)
+                            .withLongitude(point.longitude)
+                            .build();
 
+                    mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+
+                    if (mDestinationMarker == null) {
+                        mDestinationMarker = mMap.addMarker(new MarkerOptions()
+                                .position(point)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    } else {
+                        mDestinationMarker.setPosition(point);
+                    }
+                    Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
+                            mWayfindingDestination.getLongitude() + "), floor=" +
+                            mWayfindingDestination.getFloor());
+                }
+            }
+        });
+        bCancel.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Toast.makeText(WayfindingOverlayActivity.this,
+                        "cancel",
+                        Toast.LENGTH_SHORT).show();
+                //cancel route
+                mCurrentRoute = null;
+                mWayfindingDestination = null;
+                mIALocationManager.removeWayfindingUpdates();
+                updateRouteVisualization();
+            }
+        });
         // Request GPS locations
         if (ActivityCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, MY_PERMISSION_ACCESS_FINE_LOCATION);
@@ -312,13 +372,14 @@ public class WayfindingOverlayActivity extends FragmentActivity
             t1.shutdown();
         }
     }
-
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
         mMap.setOnMapClickListener(this);
+        addMarkers();
     }
 
     /**
@@ -409,6 +470,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     @Override
     public void onMapClick(LatLng point) {
+        /*
         if (mMap != null) {
             count=0;
             msgList.clear();
@@ -433,6 +495,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
                     mWayfindingDestination.getLongitude() + "), floor=" +
                     mWayfindingDestination.getFloor());
         }
+        */
     }
 
     private boolean hasArrivedToDestination(IARoute route) {
