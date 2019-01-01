@@ -1,19 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
+    android:orientation="horizontal"
     android:layout_height="match_parent">
-
     <Button
         android:id="@+id/buttonGuardian"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="Guardian" />
-
+    <view
+        android:layout_width="2dp"
+        android:layout_height="match_parent"
+        android:background="#000"
+        />
     <Button
         android:id="@+id/buttonBlind"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
         android:layout_weight="1"
         android:text="Blind" />
 </LinearLayout>
