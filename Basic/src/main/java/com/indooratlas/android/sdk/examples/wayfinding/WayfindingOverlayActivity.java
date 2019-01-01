@@ -2,10 +2,16 @@ package com.indooratlas.android.sdk.examples.wayfinding;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.speech.RecognitionListener;
+import android.speech.RecognizerIntent;
+import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
@@ -93,6 +99,9 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private IARoute mCurrentRoute;
     private LatLng currentPos;
     private IAWayfindingRequest mWayfindingDestination;
+    //speech recognition
+    private SpeechRecognizer speechRecognizer;
+    private Intent speechIntent;
     private IAWayfindingListener mWayfindingListener = new IAWayfindingListener() {
 
 
@@ -579,4 +588,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
         }
 
     }
+    //speech recognition
+
+
 }
