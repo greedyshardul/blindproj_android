@@ -13,6 +13,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
@@ -72,7 +73,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
-
+    private static final int REQUEST_CODE = 0;
+    private static String[] PERMISSIONS_AUDIO = {Manifest.permission.RECORD_AUDIO};
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     //Range<Integer> rStraight1=Range.closedOpen(335,360);
     //Range<Integer> rStraight2=Range.closedOpen(0,45);
@@ -273,9 +275,18 @@ public class WayfindingOverlayActivity extends FragmentActivity
         mIALocationManager.lockIndoors(true);
         bSearch=findViewById(R.id.buttonSearch);
         bCancel=findViewById(R.id.buttonCancel);
-        bSearch.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+        //add permission
+        if(ActivityCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO)
+                !=getPackageManager().PERMISSION_GRANTED){
+            requestAudioPermission();
+
+        }
+        else{
+            Log.i(TAG,"AUDIO PERMISSION GRANTED");
+        }
+
+
+        bSearch.setOnClickListener((View v) -> {
                 Toast.makeText(WayfindingOverlayActivity.this,
                         "search",
                         Toast.LENGTH_SHORT).show();
@@ -305,7 +316,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
                             mWayfindingDestination.getLongitude() + "), floor=" +
                             mWayfindingDestination.getFloor());
                 }
-            }
+
         });
         bCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -589,6 +600,52 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     }
     //speech recognition
+    private void requestAudioPermission(){
+        Log.i(TAG,"not granted, requesting");
+        if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.RECORD_AUDIO)){
+            Snackbar.make(findViewById(android.R.id.content),"give permission",Snackbar.LENGTH_INDEFINITE)
+                    .setAction("ok", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            ActivityCompat.requestPermissions(WayfindingOverlayActivity.this,
+                                    new String[]{Manifest.permission.RECORD_AUDIO},REQUEST_CODE );
+                        }
+                    })
+                    .show();
+        }
+        else
+            ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},REQUEST_CODE);
+    }
 
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+
+        if (requestCode == REQUEST_CODE) {
+            // BEGIN_INCLUDE(permission_result)
+            // Received permission result for camera permission.
+            Log.i(TAG, "Received response for permission request.");
+
+            // Check if the only required permission has been granted
+            if (grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                // Camera permission has been granted, preview can be displayed
+                Log.i(TAG, "audio permission has now been granted. Showing preview.");
+                Snackbar.make(findViewById(android.R.id.content), "audio available",
+                        Snackbar.LENGTH_SHORT).show();
+            } else {
+                Log.i(TAG, "CAMERA permission was NOT granted.");
+                Snackbar.make(findViewById(android.R.id.content), "not granted",
+                        Snackbar.LENGTH_SHORT).show();
+
+            }
+            // END_INCLUDE(permission_result)
+
+
+
+        } else {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        }
+    }
 
 }
