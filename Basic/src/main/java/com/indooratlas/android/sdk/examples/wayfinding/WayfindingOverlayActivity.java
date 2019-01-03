@@ -22,6 +22,9 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.common.collect.Range;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -39,6 +42,15 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.GeoPoint;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.indooratlas.android.sdk.IALocation;
 import com.indooratlas.android.sdk.IALocationListener;
 import com.indooratlas.android.sdk.IALocationManager;
@@ -61,6 +73,9 @@ import com.squareup.picasso.Target;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
+
+import javax.annotation.Nullable;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
 
@@ -93,6 +108,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private boolean mCameraPositionNeedsUpdating = true; // update on first location
     private Marker mDestinationMarker;
     private Marker mHeadingMarker;
+    private ArrayList<Marker> markerList=new ArrayList<Marker>();
     private List<Polyline> mPolylines = new ArrayList<>();
     private TextToSpeech t1;
     private List<Integer> msgList=new ArrayList<>();
@@ -104,6 +120,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
     //speech recognition
     private SpeechRecognizer speechRecognizer;
     private Intent speechIntent;
+    FirebaseFirestore db = FirebaseFirestore.getInstance();
+    Map<String,Object> locations;
     private IAWayfindingListener mWayfindingListener = new IAWayfindingListener() {
 
 
@@ -158,13 +176,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     };
 
     private int mFloor;
-    private void addMarkers()
-    {
-        LatLng point=new LatLng(19.119509,72.893560);
-        mDestinationMarker = mMap.addMarker(new MarkerOptions()
-                .position(point)
-                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("kitchen"));
-    }
+
     private void showLocationCircle(LatLng center, double accuracyRadius) {
         if (mCircle == null) {
             // location can received before map is initialized, ignoring those updates
@@ -288,34 +300,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         bSearch.setOnClickListener((View v) -> {
                 Toast.makeText(WayfindingOverlayActivity.this,
-                        "search",
+                        "searching in "+mOverlayFloorPlan.getName(),
                         Toast.LENGTH_SHORT).show();
                 // search for point here, works!
-                if (mMap != null) {
-                    count=0;
-                    msgList.clear();
-                    for(int i=0;i<10;i++)
-                        msgList.add(i,0);
-                    LatLng point=mDestinationMarker.getPosition();
-                    mWayfindingDestination = new IAWayfindingRequest.Builder()
-                            .withFloor(mFloor)
-                            .withLatitude(point.latitude)
-                            .withLongitude(point.longitude)
-                            .build();
-
-                    mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
-
-                    if (mDestinationMarker == null) {
-                        mDestinationMarker = mMap.addMarker(new MarkerOptions()
-                                .position(point)
-                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-                    } else {
-                        mDestinationMarker.setPosition(point);
-                    }
-                    Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
-                            mWayfindingDestination.getLongitude() + "), floor=" +
-                            mWayfindingDestination.getFloor());
-                }
+            initSpeechRecognizer();
 
         });
         bCancel.setOnClickListener(new View.OnClickListener() {
@@ -328,7 +316,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 mCurrentRoute = null;
                 mWayfindingDestination = null;
                 mIALocationManager.removeWayfindingUpdates();
-                updateRouteVisualization();
+                //updateRouteVisualization();
+                clearRouteVisualization();
             }
         });
         // Request GPS locations
@@ -349,6 +338,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 }
             }
         });
+        addPoints();
     }
 
     @Override
@@ -399,7 +389,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
         mMap.setOnMapClickListener(this);
-        addMarkers();
+        addPoints();
     }
 
     /**
@@ -646,6 +636,170 @@ public class WayfindingOverlayActivity extends FragmentActivity
         } else {
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+    }
+    RecognitionListener recognitionListener=new RecognitionListener() {
+        @Override
+        public void onReadyForSpeech(Bundle params) {
+
+        }
+
+        @Override
+        public void onBeginningOfSpeech() {
+
+        }
+
+        @Override
+        public void onRmsChanged(float rmsdB) {
+
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer) {
+
+        }
+
+        @Override
+        public void onEndOfSpeech() {
+
+        }
+
+        @Override
+        public void onError(int error) {
+            Toast.makeText(WayfindingOverlayActivity.this,
+                    "error "+error,
+                    Toast.LENGTH_SHORT).show();
+        }
+
+        @Override
+        public void onResults(Bundle results) {
+            Toast.makeText(WayfindingOverlayActivity.this,
+                    results.toString(),
+                    Toast.LENGTH_SHORT).show();
+            ArrayList<String> myVoice = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            process(myVoice);
+        }
+
+        @Override
+        public void onPartialResults(Bundle partialResults) {
+
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params) {
+
+        }
+    };
+    private void initSpeechRecognizer() {
+
+        // Create the speech recognizer and set the listener
+        speechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        speechRecognizer.setRecognitionListener(recognitionListener);
+
+        // Create the intent with ACTION_RECOGNIZE_SPEECH
+        speechIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL, RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        speechIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE, Locale.US);
+
+        listen();
+    }
+
+
+    public void listen() {
+
+        // startListening should be called on Main thread
+        Handler mainHandler = new Handler(Looper.getMainLooper());
+        Runnable myRunnable = () -> speechRecognizer.startListening(speechIntent);
+        mainHandler.post(myRunnable);
+    }
+    private void process(ArrayList<String> result){
+        StringBuffer sb=new StringBuffer();
+        for(String s:result)
+        {
+            sb.append(s+" ");
+        }
+        Toast.makeText(WayfindingOverlayActivity.this,
+                "searching for "+result.get(0),
+                Toast.LENGTH_SHORT).show();
+        searchLocation(result.get(0));
+    }
+    private void searchLocation(String result) {
+        //add points in oncreate and search later
+        for(Marker m:markerList){
+            if(m.getTitle().equals(result)){
+                Toast.makeText(WayfindingOverlayActivity.this,
+                        "found "+m.getTitle(),
+                        Toast.LENGTH_SHORT).show();
+                LatLng pt=new LatLng(m.getPosition().latitude,m.getPosition().longitude);
+
+                /** add listener **/
+                if (mMap != null) {
+                    count=0;
+                    msgList.clear();
+                    for(int i=0;i<10;i++)
+                        msgList.add(i,0);
+                    LatLng point=pt;
+                    mWayfindingDestination = new IAWayfindingRequest.Builder()
+                            .withFloor(mFloor)
+                            .withLatitude(point.latitude)
+                            .withLongitude(point.longitude)
+                            .build();
+
+                    mIALocationManager.requestWayfindingUpdates(mWayfindingDestination, mWayfindingListener);
+
+                    if (mDestinationMarker == null) {
+                        mDestinationMarker = mMap.addMarker(new MarkerOptions()
+                                .position(point)
+                                .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
+                    } else {
+                        mDestinationMarker.setPosition(point);
+                    }
+                    Log.d(TAG, "Set destination: (" + mWayfindingDestination.getLatitude() + ", " +
+                            mWayfindingDestination.getLongitude() + "), floor=" +
+                            mWayfindingDestination.getFloor());
+                }
+                //end part
+
+                return;
+            }
+
+
+        }
+        Toast.makeText(WayfindingOverlayActivity.this,
+                "not found",
+                Toast.LENGTH_SHORT).show();
+
+    }
+
+    private void addPoints() {
+        DocumentReference docRef = db.collection("locations").document("home");
+        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    if (document.exists()) {
+                        Log.d(TAG, "DocumentSnapshot data: " + document.getId());
+                        locations=document.getData();
+                        for(Map.Entry<String,Object> entry:locations.entrySet()){
+                            Log.d(TAG,entry.getKey()+":"+entry.getValue());
+                            GeoPoint g=(GeoPoint) entry.getValue();
+                            Log.d(TAG,"latitude extracted: "+g.getLatitude());
+                            LatLng extracted=new LatLng(g.getLatitude(),g.getLongitude());
+                            Marker m=mMap.addMarker(new MarkerOptions().position(extracted).title(entry.getKey()));
+                            if(m!=null)
+                                markerList.add(m);
+
+                        }
+                    } else {
+                        Log.d(TAG, "No such document");
+                    }
+                } else {
+                    Log.d(TAG, "get failed with ", task.getException());
+                }
+
+
+            }
+        });
     }
 
 }
