@@ -1,36 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="#ffffff"  >
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_weight="1"
+        android:background="#ffffff"
+        android:orientation="horizontal">
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/buttonOutdoor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Outdoor Navigation" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/buttonIndoor"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:text="Indoor Navigation" />
+        </LinearLayout>
 
 
-    <Button
-        android:id="@+id/buttonOutdoor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Outdoor Navigation" />
+    </LinearLayout>
 
-    <Button
-        android:id="@+id/buttonIndoor"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Indoor Navigation" />
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="#ffffff"
+        android:orientation="vertical"
+        android:layout_weight="3">
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/floatButton"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:srcCompat="@drawable/osm_ic_follow_me" />
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/floatButton"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:srcCompat="@drawable/osm_ic_follow_me" />
 
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/buttonCall"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:clickable="true"
-        app:srcCompat="@android:drawable/sym_action_call" />
-
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/buttonCall"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            app:srcCompat="@android:drawable/sym_action_call" />
+    </LinearLayout>
 </LinearLayout>
