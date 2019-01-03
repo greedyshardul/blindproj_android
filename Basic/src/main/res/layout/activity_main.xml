@@ -6,11 +6,6 @@
     android:layout_height="fill_parent"
     android:background="#ffffff"  >
 
-    <TextView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="Home"
-        android:textColor="#000000" />
 
     <Button
         android:id="@+id/buttonOutdoor"
@@ -23,12 +18,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Indoor Navigation" />
-
-    <Button
-        android:id="@+id/buttonImg"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Indoor navigation image" />
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/floatButton"

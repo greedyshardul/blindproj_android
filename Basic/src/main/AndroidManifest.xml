@@ -71,7 +71,6 @@
         <activity android:name=".AccountActivity.SignupActivity" />
         <activity android:name=".AccountActivity.ResetPasswordActivity"/>
 
-        <activity android:name=".wayfinding.ImageViewActivity"/>
         <service android:name=".firebaseLocation.sendService" />
         <provider
             android:name="android.support.v4.content.FileProvider"
