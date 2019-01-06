@@ -2,10 +2,13 @@ package com.indooratlas.android.sdk.examples.wayfinding;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.bluetooth.BluetoothAdapter;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -89,9 +92,9 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
-    private static final int REQUEST_CODE = 0,PERMISSION_ALL= 1;;
-    private static String[] PERMISSIONS_AUDIO = {Manifest.permission.RECORD_AUDIO};
-    private static String[] permissions={
+    private static final int PERMISSION_ALL= 1;
+    //private static String[] PERMISSIONS_AUDIO = {Manifest.permission.RECORD_AUDIO};
+    private static String[] Permissions={
             Manifest.permission.RECORD_AUDIO,
             Manifest.permission.BLUETOOTH,
             Manifest.permission.BLUETOOTH_ADMIN
@@ -285,6 +288,22 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         // prevent the screen going to sleep while app is on foreground
         findViewById(android.R.id.content).setKeepScreenOn(true);
+        //bluetooth
+        BluetoothAdapter BTAdapter=BluetoothAdapter.getDefaultAdapter();;
+        if (!BTAdapter.isEnabled()) {
+            // IT NEEDS BLUETOOTH PERMISSION
+            // Intent to enable bluetooth, it will show the enable bluetooth
+            // dialog
+            Intent enableIntent = new Intent(
+                    BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            // this is to get a result if bluetooth was enabled or not
+            startActivityForResult(enableIntent,1);
+            // It will call onActivityResult method to determine if Bluetooth
+            // was enabled or not
+        } else {
+            // Bluetooth is enabled
+        }
+
 
         // instantiate IALocationManager
         mIALocationManager = IALocationManager.create(this);
@@ -294,6 +313,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
         bSearch=findViewById(R.id.buttonSearch);
         bCancel=findViewById(R.id.buttonCancel);
         //add permission
+        /*
         if(ActivityCompat.checkSelfPermission(this,Manifest.permission.RECORD_AUDIO)
                 !=getPackageManager().PERMISSION_GRANTED){
             requestAudioPermission();
@@ -302,7 +322,10 @@ public class WayfindingOverlayActivity extends FragmentActivity
         else{
             Log.i(TAG,"AUDIO PERMISSION GRANTED");
         }
-
+        */
+        if(!hasPermissions(this, Permissions)){
+            ActivityCompat.requestPermissions(this, Permissions, PERMISSION_ALL);
+        }
 
         bSearch.setOnClickListener((View v) -> {
                 Toast.makeText(WayfindingOverlayActivity.this,
@@ -353,6 +376,17 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
         // remember to clean up after ourselves
         mIALocationManager.destroy();
+    }
+    public static boolean hasPermissions(Context context, String... permissions){
+
+        if(Build.VERSION.SDK_INT>= Build.VERSION_CODES.M && context!=null && permissions!=null){
+            for(String permission: permissions){
+                if(ActivityCompat.checkSelfPermission(context, permission)!= PackageManager.PERMISSION_GRANTED){
+                    return  false;
+                }
+            }
+        }
+        return true;
     }
 
     @Override
@@ -596,6 +630,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     }
     //speech recognition
+    /*
     private void requestAudioPermission(){
         Log.i(TAG,"not granted, requesting");
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,Manifest.permission.RECORD_AUDIO)){
@@ -612,8 +647,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
         else
             ActivityCompat.requestPermissions(this,new String[]{Manifest.permission.RECORD_AUDIO},REQUEST_CODE);
     }
-
-
+    */
+    /*
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -643,6 +678,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
             super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
+    */
     RecognitionListener recognitionListener=new RecognitionListener() {
         @Override
         public void onReadyForSpeech(Bundle params) {
