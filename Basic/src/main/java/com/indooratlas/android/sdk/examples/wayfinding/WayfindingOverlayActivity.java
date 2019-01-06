@@ -78,6 +78,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 
 import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.BLUETOOTH_ADMIN;
 
 @SdkExample(description = R.string.example_wayfinding_description)
 public class WayfindingOverlayActivity extends FragmentActivity
@@ -88,8 +89,13 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
     /* used to decide when bitmap should be downscaled */
     private static final int MAX_DIMENSION = 2048;
-    private static final int REQUEST_CODE = 0;
+    private static final int REQUEST_CODE = 0,PERMISSION_ALL= 1;;
     private static String[] PERMISSIONS_AUDIO = {Manifest.permission.RECORD_AUDIO};
+    private static String[] permissions={
+            Manifest.permission.RECORD_AUDIO,
+            Manifest.permission.BLUETOOTH,
+            Manifest.permission.BLUETOOTH_ADMIN
+    };
     private GoogleMap mMap; // Might be null if Google Play services APK is not available.
     //Range<Integer> rStraight1=Range.closedOpen(335,360);
     //Range<Integer> rStraight2=Range.closedOpen(0,45);
