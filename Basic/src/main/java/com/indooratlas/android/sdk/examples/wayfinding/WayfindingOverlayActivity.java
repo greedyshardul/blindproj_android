@@ -367,7 +367,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 }
             }
         });
-        addPoints();
+        //addPoints();
     }
 
     @Override
@@ -429,7 +429,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
         // do not show Google's outdoor location
         mMap.setMyLocationEnabled(false);
         mMap.setOnMapClickListener(this);
-        addPoints();
+        //addPoints();
     }
 
     /**
@@ -477,6 +477,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 if (mOverlayFloorPlan != null && floorPlan.getId().equals(mOverlayFloorPlan.getId())) {
                     Log.d(TAG, "showing overlay");
                     setupGroundOverlay(floorPlan, bitmap);
+                    addPoints();
                 }
             }
 
@@ -813,7 +814,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     }
 
     private void addPoints() {
-        DocumentReference docRef = db.collection("locations").document("home");
+        DocumentReference docRef = db.collection("locations").document(mOverlayFloorPlan.getName()); //extract location name
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
