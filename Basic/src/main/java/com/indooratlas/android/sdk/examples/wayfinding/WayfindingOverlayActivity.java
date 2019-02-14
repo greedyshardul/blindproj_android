@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.location.Location;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -249,7 +250,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
             // our camera position needs updating if location has significantly changed
             if (mCameraPositionNeedsUpdating) {
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 25.5f)); //17.5f
+                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(center, 19.0f)); //17.5f, 25.5
 
                 mCameraPositionNeedsUpdating = false;
             }
@@ -332,6 +333,12 @@ public class WayfindingOverlayActivity extends FragmentActivity
                         "searching in "+mOverlayFloorPlan.getName(),
                         Toast.LENGTH_SHORT).show();
                 // search for point here, works!
+            //tell current location here, string nearest()
+            String msg= "you are near "+nearest();
+            Toast.makeText(WayfindingOverlayActivity.this,
+                    msg,
+                    Toast.LENGTH_SHORT).show();
+            t1.speak(msg, TextToSpeech.QUEUE_FLUSH, null);
             initSpeechRecognizer();
 
         });
@@ -765,6 +772,30 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 Toast.LENGTH_SHORT).show();
         searchLocation(result.get(0));
     }
+    private String nearest(){
+        double sDist=0;
+        String near=new String("not found");
+        int count=0;
+        Location current=new Location("current");
+        Location someLocation=new Location("some");
+        current.setLatitude(mHeadingMarker.getPosition().latitude);
+        current.setLongitude(mHeadingMarker.getPosition().longitude);
+        for(Marker m:markerList){
+            someLocation.setLatitude(m.getPosition().latitude);
+            someLocation.setLongitude(m.getPosition().longitude);
+            if(count==0) {
+                count++;
+                sDist = current.distanceTo(someLocation);
+                near=m.getTitle();
+            }
+
+                if (current.distanceTo(someLocation) < sDist) {
+                    sDist = current.distanceTo(someLocation);
+                    near=m.getTitle();
+                }
+        }
+        return near;
+    }
     private void searchLocation(String result) {
         //add points in oncreate and search later
         for(Marker m:markerList){
@@ -814,7 +845,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     }
 
     private void addPoints() {
-        DocumentReference docRef = db.collection("locations").document(mOverlayFloorPlan.getName()); //extract location name
+        DocumentReference docRef = db.collection("locations").document(mOverlayFloorPlan.getName()); //extract location name,
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {

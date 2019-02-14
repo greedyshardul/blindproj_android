@@ -55,6 +55,7 @@ public class sendService extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public int onStartCommand (Intent intent, int flags, int startId) {
+        Context con=this;
         if (intent !=null && intent.getExtras()!=null)
             guardian = intent.getExtras().getString("guardian");
         else
@@ -66,19 +67,22 @@ public class sendService extends Service {
                 blind.put("name","demo");
                 blind.put("latitude",location.getLatitude());
                 blind.put("longitude",location.getLongitude());
-
+                //create document if doesnt exist
                 db.collection("shared_locations").document(guardian)
                         .set(blind)
                         .addOnSuccessListener(new OnSuccessListener<Void>() {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "DocumentSnapshot successfully written!");
+                                Toast.makeText(con,"success", Toast.LENGTH_LONG).show();
+
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.w(TAG, "Error writing document", e);
+                                Toast.makeText(con,"fail", Toast.LENGTH_LONG).show();
                             }
                         });
 
@@ -113,7 +117,7 @@ public class sendService extends Service {
     @SuppressLint("MissingPermission")
     @Override
     public void onCreate() {
-
+        Context con=this;
 
         Toast.makeText(this, "in onCreate, guardian "+guardian, Toast.LENGTH_LONG).show();
         listener = new LocationListener() {
@@ -129,12 +133,14 @@ public class sendService extends Service {
                             @Override
                             public void onSuccess(Void aVoid) {
                                 Log.d(TAG, "DocumentSnapshot successfully written!");
+                                Toast.makeText(con,"success", Toast.LENGTH_LONG).show();
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception e) {
                                 Log.w(TAG, "Error writing document", e);
+                                Toast.makeText(con,"fail", Toast.LENGTH_LONG).show();
                             }
                         });
 
