@@ -1,6 +1,9 @@
 # Touch Tap See : A Navigation Assistant for the Visually Impaired person
 ## IndoorAtlas SDK voice navigation with route distance and direction
-Technical paper<br>
+Link to site: https://greedyshardul.github.io/blindproj_android/
+<br>Technical paper<br>
+<iframe src="https://drive.google.com/file/d/1SD3QEmIHCyNNTpRkzIDXoVqFM5E6Eaky/preview" width="640" height="480"></iframe>
+<br><br>
 [Technical paper](https://github.com/greedyshardul/blindproj_android/blob/master/ICACM_284.pdf)
 <br>Forked from https://github.com/IndoorAtlas/android-sdk-examples
 
