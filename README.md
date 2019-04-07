@@ -1,6 +1,8 @@
-# IndoorAtlas SDK voice navigation with route distance and direction
-
-Forked from https://github.com/IndoorAtlas/android-sdk-examples
+# Touch Tap See : A Navigation Assistant for the Visually Impaired person
+## IndoorAtlas SDK voice navigation with route distance and direction
+Technical paper<br>
+https://drive.google.com/file/d/1SD3QEmIHCyNNTpRkzIDXoVqFM5E6Eaky/view?usp=sharing
+<br>Forked from https://github.com/IndoorAtlas/android-sdk-examples
 
 This app uses IARoute.Leg to find distance and direction between each leg and gives a voice message and notification. The following code is added in [WayfindingOverlayActivity.java](https://github.com/greedyshardul/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/wayfinding/WayfindingOverlayActivity.java). 
 
