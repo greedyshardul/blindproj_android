@@ -22,6 +22,7 @@ android {
         resValue "string", "pubnub_publish_key", pubNubPublishKey
         resValue "string", "pubnub_subscribe_key", pubNubSubscribeKey
         //for lambda
+        multiDexEnabled true //to fix dex error
 
     }
     compileOptions {
