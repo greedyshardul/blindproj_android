@@ -124,6 +124,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private List<Integer> msgList=new ArrayList<>();
     private int count;
     private String dir,msg;
+    private StringBuffer journeyMsg=new StringBuffer();
+
     private IARoute mCurrentRoute;
     private LatLng currentPos;
     private IAWayfindingRequest mWayfindingDestination;
@@ -132,13 +134,14 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private Intent speechIntent;
     FirebaseFirestore db = FirebaseFirestore.getInstance();
     Map<String,Object> locations;
+    private int onlyOnce=0;
     private IAWayfindingListener mWayfindingListener = new IAWayfindingListener() {
 
 
         @Override
         public void onWayfindingUpdate(IARoute route) {
             mCurrentRoute = route; //add legs here
-
+            /*
             int delta=(int)(route.getLegs().get(count).getDirection()-mHeadingMarker.getRotation());
             double dist;
             dir="straight";
@@ -148,9 +151,45 @@ public class WayfindingOverlayActivity extends FragmentActivity
                 dir="back";
             else if(rLeft.contains(delta)||rLeftN.contains(delta))
                 dir="left";
+                */
+            //start: display all distances and angles together
+            if(onlyOnce==0) {
+                onlyOnce=1;
+                int delta;
+                int total = route.getLegs().size();
+                for (int ct = 1; ct < total - 2; ct++) {
+                    //modify angle
+                    if(ct==1) delta=(int) (route.getLegs().get(ct).getDirection() - mHeadingMarker.getRotation());
+                    else delta=(int) (route.getLegs().get(ct).getDirection() - route.getLegs().get(ct-1).getDirection());
 
+
+                            //(int) (route.getLegs().get(ct).getDirection() - mHeadingMarker.getRotation());
+                    double dist;
+                    dir = "straight";
+                    if (rRight.contains(delta) || rRightN.contains(delta))
+                        dir = "right";
+                    else if (rBack.contains(delta) || rBackN.contains(delta))
+                        dir = "back";
+                    else if (rLeft.contains(delta) || rLeftN.contains(delta))
+                        dir = "left";
+                    //angle calculated
+                    dist = Math.round(route.getLegs().get(ct).getLength() * 100.0) / 100.0; //round off dist
+                    //appeand everything in 1 string
+                    journeyMsg.append("Leg " + ct + ". Travel " + dist + " metres to your " + dir+".");
+                    //showInfo("at leg " + ct + ". travel" + dist + " " + dir + " delta=" + delta);
+                    //mCurrentRoute = null;
+
+                }
+                Log.i(TAG,journeyMsg.toString());
+                showInfo(journeyMsg.toString());
+                t1.speak(journeyMsg.toString(), TextToSpeech.QUEUE_FLUSH, null);
+            }
+            //end
+            /*
             if (atLeg(route.getLegs().get(count))) {
-                if(msgList.get(count)==0) {
+
+                //taken outside
+                if(msgList.get(count)==0) { //not visited
                     dist=Math.round(route.getLegs().get(count).getLength()*100.0)/100.0; //round off dist
                     msg="You are at leg " + count + ". Travel" + dist + " metre " + dir;
                     showInfo("at leg " + count + ". travel" + dist + " " + dir+" delta="+delta);
@@ -161,12 +200,15 @@ public class WayfindingOverlayActivity extends FragmentActivity
                     msgList.set(count,1);
                 }
             }
+            */
             if (hasArrivedToDestination(route)) {
                 // stop wayfinding
                 showInfo("You're there!");
                 mCurrentRoute = null;
                 mWayfindingDestination = null;
                 mIALocationManager.removeWayfindingUpdates();
+                //clear msglist
+                msgList.clear();
             }
             updateRouteVisualization();
         }
@@ -775,7 +817,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
     private String nearest(){
         double sDist=0;
         String near=new String("not found");
-        int count=0;
+        int Ncount=0; //resetting it, change count to nearCOunt
         Location current=new Location("current");
         Location someLocation=new Location("some");
         current.setLatitude(mHeadingMarker.getPosition().latitude);
@@ -783,8 +825,8 @@ public class WayfindingOverlayActivity extends FragmentActivity
         for(Marker m:markerList){
             someLocation.setLatitude(m.getPosition().latitude);
             someLocation.setLongitude(m.getPosition().longitude);
-            if(count==0) {
-                count++;
+            if(Ncount==0) {
+                Ncount++;
                 sDist = current.distanceTo(someLocation);
                 near=m.getTitle();
             }
@@ -798,6 +840,9 @@ public class WayfindingOverlayActivity extends FragmentActivity
     }
     private void searchLocation(String result) {
         //add points in oncreate and search later
+        //onlyOnce=0
+        onlyOnce=0;
+        journeyMsg.delete(0, journeyMsg.length());
         for(Marker m:markerList){
             if(m.getTitle().equals(result)){
                 Toast.makeText(WayfindingOverlayActivity.this,
@@ -807,7 +852,7 @@ public class WayfindingOverlayActivity extends FragmentActivity
 
                 /** add listener **/
                 if (mMap != null) {
-                    count=0;
+                    count=1; //try with 1
                     msgList.clear();
                     for(int i=0;i<10;i++)
                         msgList.add(i,0);
