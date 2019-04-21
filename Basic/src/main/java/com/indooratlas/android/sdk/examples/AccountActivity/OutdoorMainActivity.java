@@ -3,6 +3,7 @@ package com.indooratlas.android.sdk.examples.AccountActivity;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -17,6 +18,12 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.Query;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.indooratlas.android.sdk.examples.OutdoorActivity;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.googlemaps.TrackingActivity;
@@ -24,48 +31,58 @@ import com.indooratlas.android.sdk.examples.googlemaps.TrackingActivity;
 public class OutdoorMainActivity extends AppCompatActivity {
 
     private Button btnChangePassword, btnRemoveUser,
-            changePassword, remove, signOut, mapButton;
+            changePassword, remove, signOut, mapButton, phoneButton;
     private TextView email;
 
-    private EditText oldEmail, password, newPassword;
+    private EditText oldEmail, password, newPassword, phoneNumber;
     private ProgressBar progressBar;
     private FirebaseAuth auth;
+    private String TAG = "outdoorMainActivity";
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.outdoor_main);
-//get firebase auth instance
+        //get firebase auth instance
         auth = FirebaseAuth.getInstance();
         email = (TextView) findViewById(R.id.useremail);
-
+        phoneButton = findViewById(R.id.phoneButton);
+        phoneNumber = findViewById(R.id.phoneNumber);
         //get current user
         final FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         setDataToView(user);
+        //get phone number from firestore
+        //breaks here
 
         authListener = new FirebaseAuth.AuthStateListener() {
             @Override
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth) {
                 FirebaseUser user = firebaseAuth.getCurrentUser();
+
                 if (user == null) {
                     // user auth state is changed - user is null
                     // launch login activity
                     startActivity(new Intent(OutdoorMainActivity.this, LoginActivity.class));
                     finish();
+                } else {
+                    //get phone number here
+                    //breaks here also
+
+
                 }
             }
         };
 
-        mapButton=findViewById(R.id.mapButton);
+        mapButton = findViewById(R.id.mapButton);
         mapButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Toast.makeText(OutdoorMainActivity.this,
                         "clicked ",
                         Toast.LENGTH_SHORT).show();
-                Intent i =new Intent(getApplicationContext(),TrackingActivity.class);
-                i.putExtra("guardian",user.getEmail());
+                Intent i = new Intent(getApplicationContext(), TrackingActivity.class);
+                i.putExtra("guardian", user.getEmail());
                 startActivity(i);
             }
         });
@@ -183,6 +200,29 @@ public class OutdoorMainActivity extends AppCompatActivity {
     private void setDataToView(FirebaseUser user) {
 
         email.setText("User Email: " + user.getEmail());
+        //try phone number query here
+        //breaks
+        //make api and call here
+        /*
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+
+        db.collection("users")
+                .whereEqualTo("email", email)
+                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+                    @Override
+                    public void onEvent(@Nullable QuerySnapshot snapshots,
+                                        @Nullable FirebaseFirestoreException e) {
+
+                        if (e != null) {
+                            Log.w(TAG, "Listen failed.", e);
+                            return;
+                        }
+
+                        Log.d(TAG, "user found: " + snapshots);
+                    }
+                });
+        */
+        //end
 
 
     }
