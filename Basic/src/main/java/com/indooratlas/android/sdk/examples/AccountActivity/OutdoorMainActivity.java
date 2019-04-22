@@ -14,6 +14,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -28,6 +36,12 @@ import com.indooratlas.android.sdk.examples.OutdoorActivity;
 import com.indooratlas.android.sdk.examples.R;
 import com.indooratlas.android.sdk.examples.googlemaps.TrackingActivity;
 
+import org.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.regex.Pattern;
+
 public class OutdoorMainActivity extends AppCompatActivity {
 
     private Button btnChangePassword, btnRemoveUser,
@@ -38,7 +52,7 @@ public class OutdoorMainActivity extends AppCompatActivity {
     private ProgressBar progressBar;
     private FirebaseAuth auth;
     private String TAG = "outdoorMainActivity";
-
+    private String firebaseEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -73,7 +87,49 @@ public class OutdoorMainActivity extends AppCompatActivity {
                 }
             }
         };
+        phoneButton.setOnClickListener((View v)->{ //lambda function, same effect as succeeding function
+            //take text and send patch request
+            if(!firebaseEmail.equals("")){
+                String phoneNo=phoneNumber.getText().toString(); //todo: input correct format number
+                Pattern mPattern=Pattern.compile("^[0-9]{10}$");
+                if(mPattern.matcher(phoneNo).matches()){
+                    //make request
+                    Log.d(TAG,"format ok");
+                    RequestQueue queue = Volley.newRequestQueue(this);
+                    String url ="https://blindproject-2fe16.firebaseapp.com/api/v1/phone/"+firebaseEmail;
+                    HashMap<String, Object> values = new HashMap<String, Object>();
+                    values.put("phone",phoneNo);
+                    JSONObject jsonValues=new JSONObject(values);
+                    JsonObjectRequest request = new JsonObjectRequest(Request.Method.PATCH, url, jsonValues,
+                            new Response.Listener<JSONObject>(){
+                                @Override
+                                public void onResponse(JSONObject response){
+                                    // Blah do stuff here
+                                    Log.d(TAG,phoneNo+"inserted successfully");
+                                }
+                            },
+                            new Response.ErrorListener(){
+                                @Override
+                                public void onErrorResponse(VolleyError error){
+                                    Log.e(TAG, "VolleyError: " + error.toString());
+                                }
+                    });
+                    Log.d(TAG,"trying to send "+jsonValues.toString()+" to"+url);
+                    queue.add(request);
 
+
+                }
+                else {
+                    Log.e(TAG, "format bad");
+                    Toast.makeText(OutdoorMainActivity.this, "Only 10 digit number!", Toast.LENGTH_SHORT).show();
+                }
+
+
+            }
+
+            //end
+
+        });
         mapButton = findViewById(R.id.mapButton);
         mapButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -200,29 +256,32 @@ public class OutdoorMainActivity extends AppCompatActivity {
     private void setDataToView(FirebaseUser user) {
 
         email.setText("User Email: " + user.getEmail());
+        firebaseEmail=user.getEmail();
         //try phone number query here
         //breaks
-        //make api and call here
-        /*
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        //make api call to get phone number of user
+        RequestQueue queue = Volley.newRequestQueue(this);
+        String url ="https://blindproject-2fe16.firebaseapp.com/api/v1/phone/"+user.getEmail();
 
-        db.collection("users")
-                .whereEqualTo("email", email)
-                .addSnapshotListener(new EventListener<QuerySnapshot>() {
+        // Request a string response from the provided URL.
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                new Response.Listener<String>() {
                     @Override
-                    public void onEvent(@Nullable QuerySnapshot snapshots,
-                                        @Nullable FirebaseFirestoreException e) {
-
-                        if (e != null) {
-                            Log.w(TAG, "Listen failed.", e);
-                            return;
-                        }
-
-                        Log.d(TAG, "user found: " + snapshots);
+                    public void onResponse(String response) {
+                        // set phoneNumber here
+                        phoneNumber.setText(response);
+                        //textView.setText("Response is: "+ response.substring(0,500));
                     }
-                });
-        */
-        //end
+                }, new Response.ErrorListener() {
+            @Override
+            public void onErrorResponse(VolleyError error) {
+                phoneNumber.setText("That didn't work!");
+            }
+        });
+
+// Add the request to the RequestQueue.
+        queue.add(stringRequest);
+
 
 
     }

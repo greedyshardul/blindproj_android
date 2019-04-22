@@ -35,7 +35,7 @@ app.get('/phone/:userEmail', (req, res) => {
               
           }).then(function () {           
               console.log("found "+userPhone+" for "+req.params.userEmail);
-              res.status(200).send(req.params.userEmail+":"+userPhone);
+              res.status(200).send(userPhone);
           }); 
           
 })
