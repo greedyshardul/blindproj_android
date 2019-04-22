@@ -1,16 +1,28 @@
 import * as functions from 'firebase-functions';
-import * as firebaseHelper from 'firebase-functions-helper';
 import * as admin from 'firebase-admin';
+import * as firebaseHelper from 'firebase-functions-helper';
 import * as express from 'express';
 import * as bodyParser from "body-parser";
+admin.initializeApp(functions.config().firebase);
+const db = admin.firestore();
 const app = express();
 const main = express();
+const usersCollection = 'users';
 main.use('/api/v1', app);
 main.use(bodyParser.json());
 main.use(bodyParser.urlencoded({ extended: false }));
-admin.initializeApp();
-const usersCollection = 'users';
-const db=admin.firestore();
+// webApi is your functions name, and you will pass main as 
+// a parameter
+export const webApi = functions.https.onRequest(main);
+// View a contact
+// View all contacts
+app.get('/contacts', (req, res) => {
+    firebaseHelper.firestore
+        .backup(db, usersCollection)
+        .then(data => res.status(200).send(data))
+})
+
+//add and remove guardian. triggered by account creation/deletion
 exports.addGuardian = functions.auth.user().onCreate((user) => {
     const email=user.email;
     //add name in firestore
