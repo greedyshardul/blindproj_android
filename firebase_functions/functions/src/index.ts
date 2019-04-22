@@ -39,6 +39,31 @@ app.get('/phone/:userEmail', (req, res) => {
           }); 
           
 })
+// Update nnumber
+app.patch('/phone/:userEmail', (req, res) => { //only phone field can be changed
+    db.collection(usersCollection).where('Email', '==', req.params.userEmail).get()
+          .then(function (querySnapshot) {
+              if(querySnapshot.empty) res.status(404).send(req.params.userEmail+" not found");
+              querySnapshot.forEach(function (doc) {
+                console.log("trying to update "+req.body+" for "+doc.id);
+                //just extract phone from body
+                if(!req.body.phone) res.status(406).send("unacceptable ");
+                var conv={
+                    "phone":req.body.phone
+                };
+                
+                    firebaseHelper.firestore
+                    .updateDocument(db, usersCollection, doc.id, conv);
+                    res.status(200).send(req.params.userEmail+":"+req.body.phone);
+                
+              });
+              
+          });/*.then(function () {           
+              console.log("updated "+req.body+" for "+req.params.userEmail);
+              res.status(200).send(req.params.userEmail+":"+req.body);
+          }); 
+          */
+})
 
 //add and remove guardian. triggered by account creation/deletion
 exports.addGuardian = functions.auth.user().onCreate((user) => {
