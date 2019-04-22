@@ -28,21 +28,15 @@ app.get('/phone/:userEmail', (req, res) => {
     var userPhone;
     db.collection(usersCollection).where('Email', '==', req.params.userEmail).get()
           .then(function (querySnapshot) {
-              // Once we get the results, begin a batch
-              //var batch = db.batch();
               if(querySnapshot.empty) res.status(404).send(req.params.userEmail+" not found");
-
               querySnapshot.forEach(function (doc) {
-                  // For each doc, add a delete operation to the batch
                   userPhone=doc.data().phone;
               });
               
-          }).then(function () {
-              
+          }).then(function () {           
               console.log("found "+userPhone+" for "+req.params.userEmail);
               res.status(200).send(req.params.userEmail+":"+userPhone);
           }); 
-          //res.status(404).send("not found");
           
 })
 
