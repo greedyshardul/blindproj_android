@@ -54,7 +54,7 @@ app.patch('/phone/:userEmail', (req, res) => { //only phone field can be changed
                 
                     firebaseHelper.firestore
                     .updateDocument(db, usersCollection, doc.id, conv);
-                    res.status(200).send(req.params.userEmail+":"+req.body.phone);
+                    res.status(200).send(conv);
                 
               });
               

@@ -11,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -28,8 +29,15 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.indooratlas.android.sdk.examples.firebaseLocation.sendService;
 import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity;
 
@@ -48,21 +56,25 @@ public class ListExamplesActivity extends AppCompatActivity {
     private static final String TAG = "IAExample";
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
-    Button b1,b2,b3;
-    FloatingActionButton fb,cb;
+    Button b1, b2, b3;
+    FloatingActionButton fb, cb;
     EditText input;
     String guardianName;
     AlertDialog.Builder builder;
     Context mContext;
+    TextView gEmail, gNumber;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
-        fb=findViewById(R.id.floatButton);
-        cb=findViewById(R.id.buttonCall);
-        mContext=this;
+        fb = findViewById(R.id.floatButton);
+        cb = findViewById(R.id.buttonCall);
+        gEmail = findViewById(R.id.gEmail);
+        gNumber = findViewById(R.id.gNumber);
+        mContext = this;
         /*
         guardian.addTextChangedListener(new TextWatcher() {
             @Override
@@ -104,7 +116,8 @@ public class ListExamplesActivity extends AppCompatActivity {
 
         cb.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
-                Intent i=new Intent(Intent.ACTION_DIAL);
+                Intent i = new Intent(Intent.ACTION_DIAL);
+                i.setData(Uri.parse("tel:"+gNumber.getText()));
                 startActivity(i);
             }
 
@@ -121,24 +134,47 @@ public class ListExamplesActivity extends AppCompatActivity {
                 builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        guardianName = input.getText().toString();
-                        if(guardianName.matches("^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$")){
+                        guardianName = input.getText().toString(); //guardianName is email
+                        if (guardianName.matches("^(?!\\.)[0-9a-zA-Z\\.]+[0-9a-zA-Z]@(?!\\.)[0-9a-zA-Z\\.]+[0-9a-zA-Z]$")) {
                             Toast.makeText(ListExamplesActivity.this,
-                                    "accepting"+guardianName,
+                                    "accepting" + guardianName,
                                     Toast.LENGTH_SHORT).show();
 
-                            Intent i =new Intent(getApplicationContext(),sendService.class);
-                            i.putExtra("guardian",guardianName);
+                            Intent i = new Intent(getApplicationContext(), sendService.class);
+                            i.putExtra("guardian", guardianName);
                             startService(i);
+                            //get SoS number
+                            RequestQueue queue = Volley.newRequestQueue(mContext);
+                            String url = "https://blindproject-2fe16.firebaseapp.com/api/v1/phone/" + guardianName;
 
+                            // Request a string response from the provided URL.
+                            StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
+                                    new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+                                            // set phoneNumber here
+                                            gNumber.setText(response);
+                                            gEmail.setText(guardianName);
+                                        }
+                                    }, new Response.ErrorListener() {
+                                    @Override
+                                    public void onErrorResponse(VolleyError error) {
+                                        gNumber.setText("Account not yet created");
+                                    }
+                            });
+                            queue.add(stringRequest);
+                            // Add the request to the RequestQueue.
                             //later check for valid email
-                        }
-                        else
+                        } else {
                             Toast.makeText(ListExamplesActivity.this,
-                                "enter valid email"+guardianName,
-                                Toast.LENGTH_SHORT).show();
+                                    "enter valid email" + guardianName,
+                                    Toast.LENGTH_SHORT).show();
+                        }
 
                     }
+                    //from here
+
+
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                     @Override
@@ -228,6 +264,7 @@ public class ListExamplesActivity extends AppCompatActivity {
 
         }
     }
+
     /*
 
     private void enableShare() {
@@ -243,9 +280,9 @@ public class ListExamplesActivity extends AppCompatActivity {
     }
     */
     private boolean runtime_permissions() {
-        if(Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED){
+        if (Build.VERSION.SDK_INT >= 23 && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
 
-            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION},100);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, 100);
 
             return true;
         }
@@ -269,6 +306,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
 
     }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -279,6 +317,7 @@ public class ListExamplesActivity extends AppCompatActivity {
         }
         */
     }
+
     /**
      * Adapter for example activities.
      */
@@ -288,7 +327,6 @@ public class ListExamplesActivity extends AppCompatActivity {
         return !"api-key-not-set".equals(getString(R.string.indooratlas_api_key))
                 && !"api-secret-not-set".equals(getString(R.string.indooratlas_api_secret));
     }
-
 
 
 }
