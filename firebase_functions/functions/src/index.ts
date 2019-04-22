@@ -15,11 +15,35 @@ main.use(bodyParser.urlencoded({ extended: false }));
 // a parameter
 export const webApi = functions.https.onRequest(main);
 // View a contact
-// View all contacts
-app.get('/contacts', (req, res) => {
+// View all users:just for demo
+/* 
+app.get('/phone', (req, res) => {
     firebaseHelper.firestore
         .backup(db, usersCollection)
         .then(data => res.status(200).send(data))
+})
+*/
+// View a contact
+app.get('/phone/:userEmail', (req, res) => {
+    var userPhone;
+    db.collection(usersCollection).where('Email', '==', req.params.userEmail).get()
+          .then(function (querySnapshot) {
+              // Once we get the results, begin a batch
+              //var batch = db.batch();
+              if(querySnapshot.empty) res.status(404).send(req.params.userEmail+" not found");
+
+              querySnapshot.forEach(function (doc) {
+                  // For each doc, add a delete operation to the batch
+                  userPhone=doc.data().phone;
+              });
+              
+          }).then(function () {
+              
+              console.log("found "+userPhone+" for "+req.params.userEmail);
+              res.status(200).send(req.params.userEmail+":"+userPhone);
+          }); 
+          //res.status(404).send("not found");
+          
 })
 
 //add and remove guardian. triggered by account creation/deletion
