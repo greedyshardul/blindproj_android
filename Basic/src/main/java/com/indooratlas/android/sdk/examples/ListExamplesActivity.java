@@ -166,6 +166,7 @@ public class ListExamplesActivity extends AppCompatActivity {
                                             //
                                             mEditor.putString("email", guardianName).commit();
                                             mEditor.putString("number", response).commit();
+                                            mEditor.commit();
                                         }
                                     }, new Response.ErrorListener() {
                                     @Override
