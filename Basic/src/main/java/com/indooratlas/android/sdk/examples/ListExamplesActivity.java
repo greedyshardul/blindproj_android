@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -57,16 +58,19 @@ public class ListExamplesActivity extends AppCompatActivity {
 
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     Button b1, b2, b3;
-    FloatingActionButton fb, cb;
+    Button fb, cb;
     EditText input;
     String guardianName;
     AlertDialog.Builder builder;
     Context mContext;
     TextView gEmail, gNumber;
-
+    SharedPreferences mPrefs;
+    SharedPreferences.Editor mEditor;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPrefs=this.getSharedPreferences("label", 0);
+        mEditor = mPrefs.edit();
         setContentView(R.layout.activity_main);
         b1 = (Button) findViewById(R.id.buttonOutdoor);
         b2 = (Button) findViewById(R.id.buttonIndoor);
@@ -98,6 +102,9 @@ public class ListExamplesActivity extends AppCompatActivity {
             }
         });
         */
+        //get guardian email and number from mPrefs
+        gEmail.setText(mPrefs.getString("email","-"));
+        gNumber.setText(mPrefs.getString("number","-"));
 
         b1.setOnClickListener(new View.OnClickListener() {
             public void onClick(View view) {
@@ -154,7 +161,11 @@ public class ListExamplesActivity extends AppCompatActivity {
                                         public void onResponse(String response) {
                                             // set phoneNumber here
                                             gNumber.setText(response);
-                                            gEmail.setText(guardianName);
+                                            gEmail.setText(guardianName+":");
+                                            //store
+                                            //
+                                            mEditor.putString("email", guardianName).commit();
+                                            mEditor.putString("number", response).commit();
                                         }
                                     }, new Response.ErrorListener() {
                                     @Override

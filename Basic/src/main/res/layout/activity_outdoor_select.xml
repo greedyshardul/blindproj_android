@@ -15,7 +15,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Guardian" />
+            android:text="Guardian button on left" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="0dp"
@@ -28,6 +28,6 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
 
-            android:text="Blind" />
+            android:text="Blind button on right" />
     </LinearLayout>
 </LinearLayout>
