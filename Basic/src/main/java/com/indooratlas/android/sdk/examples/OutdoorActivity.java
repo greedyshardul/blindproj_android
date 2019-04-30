@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -16,6 +17,7 @@ import android.speech.RecognitionListener;
 import android.speech.RecognizerIntent;
 import android.speech.SpeechRecognizer;
 import android.speech.tts.TextToSpeech;
+import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -29,6 +31,8 @@ import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static android.Manifest.permission.RECORD_AUDIO;
+
 public class OutdoorActivity extends AppCompatActivity implements LocationListener {
     LocationManager locationManager;
     LocationListener locationListener;
@@ -38,6 +42,7 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
     boolean gps_enabled, network_enabled;
     Button b1, b2;
     TextToSpeech t1;
+    public static final int REQUEST_AUDIO_PERMISSION_CODE = 1;
     private SpeechRecognizer speechRecognizer;
     private Intent speechIntent;
     @SuppressLint("MissingPermission")
@@ -61,14 +66,23 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
         b2.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View view) {
                     //text to voice and search in google
-                    //Uri gmmIntentUri = Uri.parse("geo:0,0?q=restaurants");
                     /*
+                    Uri gmmIntentUri = Uri.parse("geo:0,0?q=navigate to ghatkopar");
+
                         Intent intent = new Intent(android.content.Intent.ACTION_VIEW,
                                 Uri.parse("https://www.google.com/maps"));
                         startActivity(intent);
 
                      */
-                    //t1.speak("speak your destination", TextToSpeech.QUEUE_FLUSH, null);
+                    RequestPermissions();
+                    /* example: without voice
+                    Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q=directions to ghatkopar");
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
+                    mapIntent.setPackage("com.google.android.apps.maps");
+                    startActivity(mapIntent);
+                    */
+                    t1.speak("speak your destination", TextToSpeech.QUEUE_FLUSH, null);
+
                     final Handler handler = new Handler();
                     handler.postDelayed(new Runnable() {
                         @Override
@@ -79,6 +93,7 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
 
                         }
                     }, 1000);
+
 
 
                 }});
@@ -194,6 +209,24 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
+    }
+    private void RequestPermissions() {
+        ActivityCompat.requestPermissions(OutdoorActivity.this, new String[]{RECORD_AUDIO}, REQUEST_AUDIO_PERMISSION_CODE);
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        switch (requestCode) {
+            case REQUEST_AUDIO_PERMISSION_CODE:
+                if (grantResults.length> 0) {
+                    boolean permissionToRecord = grantResults[0] == PackageManager.PERMISSION_GRANTED;
+                    if (permissionToRecord) {
+                        Toast.makeText(getApplicationContext(), "Permission Granted", Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(getApplicationContext(),"Permission Denied",Toast.LENGTH_LONG).show();
+                    }
+                }
+                break;
+        }
     }
 
 }
