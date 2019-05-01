@@ -31,6 +31,7 @@ import com.indooratlas.android.sdk.examples.wayfinding.WayfindingOverlayActivity
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static android.Manifest.permission.LOCATION_HARDWARE;
 import static android.Manifest.permission.RECORD_AUDIO;
 
 public class OutdoorActivity extends AppCompatActivity implements LocationListener {
@@ -53,7 +54,14 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
 
         b1 = (Button) findViewById(R.id.buttonGuardian);
         b2 = (Button) findViewById(R.id.buttonBlind);
-
+        t1=new TextToSpeech(getApplicationContext(), new TextToSpeech.OnInitListener() {
+            @Override
+            public void onInit(int status) {
+                if(status != TextToSpeech.ERROR) {
+                    t1.setLanguage(Locale.UK);
+                }
+            }
+        });
 
         locationManager = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         locationManager.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
@@ -95,8 +103,8 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
                     }, 1000);
 
 
-
                 }});
+
 
         }
     @Override
@@ -205,7 +213,8 @@ public class OutdoorActivity extends AppCompatActivity implements LocationListen
         searchLocation(result.get(0));
     }
     private void searchLocation(String location){
-        Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q="+location);
+        //Uri gmmIntentUri = Uri.parse("geo:" + latitude + "," + longitude + "?q="+location+"&mode=w");
+        Uri gmmIntentUri = Uri.parse("google.navigation:q="+location);
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
