@@ -1,11 +1,46 @@
-# Touch Tap See : A Navigation Assistant for the Visually Impaired person
-## IndoorAtlas SDK voice navigation with route distance and direction
-Link to site: https://greedyshardul.github.io/blindproj_android/
-<br>Technical paper<br>
-<iframe src="https://drive.google.com/file/d/1SD3QEmIHCyNNTpRkzIDXoVqFM5E6Eaky/preview" width="640" height="480"></iframe>
-<br><br>
-[Technical paper](https://github.com/greedyshardul/blindproj_android/blob/master/ICACM_284.pdf)
-<br>Forked from https://github.com/IndoorAtlas/android-sdk-examples
+# Touch Tap See: A Navigation Assistant for the Visually Impaired person
+## Acknowledgements
+Final year thesis by Shardul Aeer, Saket Gupta and Khyatee Thakkar. This project was possible with support from Prof. Deepti Patole, Prof. Sunayana Jadhav and KJ Somaiya College of Engineering.
+
+## Technical summary
+This app has 2 modules:
+1. **Outdoor location tracking and SOS**:
+    - The visually impaired person can pair his/her device with a guardian. The person's location is shared with the guardian in real time. Additionally, the person can press an *SOS button* to send an alert to the guardian.
+    - Tech stack: App has a serverless Google Firebase backend
+        1. **Firebase auth**: For managing guardian's account.
+        2. **Firestore and firebase functions**: To store and retrieve user and location related data. The guardian pairs his device by searching for the visually impaired person's phone number.
+    
+2. **Indoor navigation**: Uses [IndoorAtlas](https://www.indooratlas.com/), an indoor navigation and positioning service.
+
+    [![Watch the video](https://user-images.githubusercontent.com/49580849/84658941-480a0d80-af34-11ea-8b5c-448819ffc625.png)](https://youtu.be/jzoTyC7cZbE)
+    
+    [Watch demo on Youtube](https://youtu.be/jzoTyC7cZbE)
+
+    1. Create account on IndoorAtlas website, upload floor plan and define navigable routes.
+        ![image](https://user-images.githubusercontent.com/49580849/84659460-1180c280-af35-11ea-8dae-7a2fcd84f136.png)
+        
+    2. Train map data using [MapCreator2 app](https://play.google.com/store/apps/details?id=com.indooratlas.android.apps.jaywalker&hl=en_IN). It involves walking around the venue in presence of WiFi and Bluetooth beacon signals.
+        ![image](https://user-images.githubusercontent.com/49580849/84659652-5d336c00-af35-11ea-867e-ccd651113b73.png)
+        
+    3. Integrate trained map in app using the IndoorAtlas SDK. The visually impaired can navigate to any of the pre-defined locations using voice commands.
+    
+        **Show current location**
+        
+        ![image](https://user-images.githubusercontent.com/49580849/84660807-05960000-af37-11ea-94c2-c13ab9d6bab2.png)
+        
+        
+        **Search by voice**
+        
+        ![image](https://user-images.githubusercontent.com/49580849/84660818-0c247780-af37-11ea-8ed6-1a5688d7c603.png)
+        
+        
+# Usability considerations
+Care is taken to meet special needs of end users.
+1. Large buttons covering half-sides of screen.
+2. Google accessability suite: This is run along with the app. It narrates the button text. The button text explains where the buttons are placed, eg. ```guardian button on left``` and ``blind button on right```.
+3. 
+
+# Issues faced
 
 This app uses IARoute.Leg to find distance and direction between each leg and gives a voice message and notification. The following code is added in [WayfindingOverlayActivity.java](https://github.com/greedyshardul/android-sdk-examples/blob/master/Basic/src/main/java/com/indooratlas/android/sdk/examples/wayfinding/WayfindingOverlayActivity.java). 
 
