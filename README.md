@@ -1,6 +1,7 @@
 # Touch Tap See: A Navigation Assistant for the Visually Impaired person
 ## Acknowledgements
-Final year thesis by Shardul Aeer, Saket Gupta and Khyatee Thakkar. This project was possible with support from Prof. Deepti Patole, Prof. Sunayana Jadhav and KJ Somaiya College of Engineering.
+Final year thesis by Shardul Aeer, Saket Gupta and Khyatee Thakkar. This project was possible with support from Prof. Deepti Patole, Prof. Sunayana Jadhav and KJ Somaiya College of Engineering. The codebase is forked from [IndoorAtlas/
+android-sdk-examples](https://github.com/IndoorAtlas/android-sdk-examples).
 
 ## Technical summary
 This app has 2 modules:
@@ -93,9 +94,3 @@ This is converted in a simple left-right-front-back format using the below algor
 
     };
 ```
-
-## License
-
-Copyright 2015-2017 IndoorAtlas Ltd. The IndoorAtlas SDK Examples are released under the Apache License. See the [LICENSE.md](https://github.com/IndoorAtlas/android-sdk-examples/blob/master/LICENSE.md) file for details.
-
-
